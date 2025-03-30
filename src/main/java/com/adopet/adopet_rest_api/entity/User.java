@@ -3,6 +3,8 @@ package com.adopet.adopet_rest_api.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -26,4 +28,7 @@ public class User {
 
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
+
+    @OneToMany(mappedBy = "petOwner")
+    private List<Post> posts;
 }

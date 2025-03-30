@@ -1,11 +1,11 @@
-# User API Spec
+# User API Specification
 
-# Register User
+## Register User
+- **Description:** Register a new user
+- **Endpoint:** `POST /api/auth/signup`
+- **Authorization:** Not Required
 
-- Endpoint : POST /api/auth/signup
-
-Request Body :
-
+### Request Body:
 ```json
 {
   "username": "string",
@@ -15,25 +15,28 @@ Request Body :
 }
 ```
 
-Response Body (Success) : 
-```json 
-{
-  "data": "User registered"
-}
-```
-
-Response Body (Failed):
+### Response Body:
+#### Success:
 ```json
 {
-  "data": "Username already taken"
+  "message": "User registered successfully"
+}
+```
+#### Failed:
+```json
+{
+  "error": "Username already taken"
 }
 ```
 
-# Login User
+---
 
-- Endpoint : POST /api/auth/login
+## Login User
+- **Description:** Authenticate user and generate an access token
+- **Endpoint:** `POST /api/auth/login`
+- **Authorization:** Not Required
 
-Request Body : 
+### Request Body:
 ```json
 {
   "username": "string",
@@ -41,11 +44,19 @@ Request Body :
 }
 ```
 
-Response Body (Success) :
+### Response Body:
+
+#### Success:
 ```json
 {
-  "data": "Success",
-  "token" : "token"
+  "message": "Login successful",
+  "token": "jwt-token"
 }
 ```
 
+#### Failed:
+```json
+{
+  "error": "Invalid username or password"
+}
+```

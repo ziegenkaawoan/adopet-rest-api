@@ -2,6 +2,7 @@ package com.adopet.adopet_rest_api.controller;
 
 import com.adopet.adopet_rest_api.entity.User;
 import com.adopet.adopet_rest_api.model.LoginUserRequest;
+import com.adopet.adopet_rest_api.model.LoginUserResponse;
 import com.adopet.adopet_rest_api.model.RegisterUserRequest;
 import com.adopet.adopet_rest_api.repository.UserRepository;
 import com.adopet.adopet_rest_api.security.JwtUtil;
@@ -71,7 +72,6 @@ public class AuthController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Username not found");
         }
 
-
         if (!encoder.matches(request.getPassword(), user.getPassword())) {
             logger.error("Password tidak cocok!");
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid password");
@@ -85,7 +85,8 @@ public class AuthController {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
         String jwtToken = jwtUtils.generateToken(userDetails.getUsername());
-        return ResponseEntity.ok(jwtToken);
+        LoginUserResponse response = new LoginUserResponse("Login successful", jwtToken);
+        return ResponseEntity.ok(response);
     }
 
 }

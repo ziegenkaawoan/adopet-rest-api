@@ -28,7 +28,7 @@ public class CustomUserDetailService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Username not found: " + username));
 
         if(user == null) {
-            logger.error("User tidak ditemukan di database: " + username);
+            logger.error("User tidak ditemukan di database: {}", username);
             throw new UsernameNotFoundException("Username not found with username " + username);
         }
 
