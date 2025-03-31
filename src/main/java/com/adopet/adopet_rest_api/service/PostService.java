@@ -4,6 +4,7 @@ import com.adopet.adopet_rest_api.entity.Post;
 import com.adopet.adopet_rest_api.entity.User;
 import com.adopet.adopet_rest_api.model.DetailPostResponse;
 import com.adopet.adopet_rest_api.model.PetOwnerModel;
+import com.adopet.adopet_rest_api.model.PostBreedResponse;
 import com.adopet.adopet_rest_api.model.UploadPostRequest;
 import com.adopet.adopet_rest_api.repository.PostRepository;
 import com.adopet.adopet_rest_api.repository.UserRepository;
@@ -26,6 +27,7 @@ import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -74,7 +76,7 @@ public class PostService {
     }
 
 
-    // Get All
+    // Get All Post
 
 
     // Get Detail
@@ -103,14 +105,43 @@ public class PostService {
     }
 
     // Get by Breed
+    public List<PostBreedResponse> getByBreed(String breed) {
 
+        List<Post> postsList = postRepository.searchByPetBreed(breed);
+        List<PostBreedResponse> newList = new ArrayList<>();
+
+        if(!postsList.isEmpty()) {
+            for(Post post : postsList) {
+                PostBreedResponse postBreed = PostBreedResponse.builder()
+                        .postId(post.getPostId())
+                        .postDate(post.getPostDate())
+                        .imageUrl(post.getImageUrl())
+                        .petAge(post.getPetAge())
+                        .petType(post.getPetType())
+                        .confidenceScore(post.getConfidenceScore())
+                        .isAvailable(post.isAvailable())
+                        .description(post.getDescription())
+                        .build();
+
+                PetOwnerModel petOwner = PetOwnerModel.builder()
+                        .id(post.getPetOwner().getId())
+                        .phoneNumber(post.getPetOwner().getPhoneNumber())
+                        .email(post.getPetOwner().getEmail())
+                        .build();
+
+                postBreed.setPetOwner(petOwner);
+                newList.add(postBreed);
+            }
+        }
+        return newList;
+    }
 
     // Get by Type
 
 
     // Change Status
 
-    // Get All Upload History
+    // Get Upload History
 
     // Get History Detail
 

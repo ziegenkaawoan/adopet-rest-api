@@ -1,5 +1,6 @@
 # Post API Specs
 
+---
 # Post API Specs
 
 ## Upload Post
@@ -137,6 +138,7 @@
 }
 ```
 
+---
 ## Get Upload History
 - **Description:** Retrieve a list of pet adoption posts uploaded by a specific user.
 - **Endpoint:** `GET /api/posts/history`
@@ -184,6 +186,7 @@
 }
 ```
 
+---
 ## Get Upload History Detail
 
 - **Description:** Retrieve the details of a specific upload history entry by its ID.
@@ -225,6 +228,120 @@
   "error": "History Not Found"
 }
 ```
+
+---
+## Get Posts by Breed
+- **Description:** Retrieve pet adoption posts filtered by breed.
+- **Endpoint:** `GET /api/posts/breed/{petBreed}`
+- **Authorization:** Required (Bearer Token)
+
+### Request Parameters:
+
+| Parameter  | Type   | Required | Description                        |
+|------------|--------|----------|------------------------------------|
+| `petBreed` | `string` | Yes      | The breed of the pet (e.g., "Husky", "Persian"). |
+
+### Response Body (Success):
+```json
+{
+  "data": [
+    {
+      "postId": 101,
+      "petName": "Buddy",
+      "petBreed": "Golden Retriever",
+      "petType": "Dog",
+      "petOwnerId": 1,
+      "imageUrl": "https://example.com/image.jpg",
+      "description": "Friendly and energetic dog looking for a home.",
+      "confidenceScore": 90,
+      "isAvailable": true,
+      "postDate": "2025-03-30T10:00:00Z"
+    }
+  ]
+}
+```
+
+### Response Body (No Post Found):
+```json
+{
+  "message": "No Posts found"
+}
+```
+
+---
+## Get Posts by Type
+- **Description:** Retrieve pet adoption posts filtered by pet type (Dog/Cat).
+- **Endpoint:** `GET /api/posts/type/{petType}`
+- **Authorization:** Required (Bearer Token)
+
+### Request Parameters:
+
+| Parameter  | Type   | Required | Description                            |
+|------------|--------|----------|----------------------------------------|
+| `petType`  | `string` | Yes      | The type of the pet (e.g., "Dog", "Cat"). |
+
+### Response Body (Success):
+```json
+{
+  "data": [
+    {
+      "postId": 102,
+      "petName": "Milo",
+      "petBreed": "Persian",
+      "petType": "Cat",
+      "petOwnerId": 2,
+      "imageUrl": "https://example.com/image2.jpg",
+      "description": "Cute Persian cat available for adoption.",
+      "confidenceScore": 85,
+      "isAvailable": false,
+      "postDate": "2025-03-28T15:30:00Z"
+    }
+  ]
+}
+```
+
+### Response Body (No Post Found):
+```json
+{
+  "message": "No Posts found"
+}
+```
+
+---
+
+## Change Post Availability
+- **Description:** Update the availability status of a pet adoption post.
+- **Endpoint:** `PATCH /api/posts/{postId}/availability`
+- **Authorization:** Required (Bearer Token)
+
+### Request Parameters:
+
+| Parameter | Type   | Required | Description                        |
+|-----------|--------|----------|------------------------------------|
+| `postId`  | `long` | Yes      | The ID of the post to update.     |
+
+### Request Body:
+```json
+{
+  "isAvailable": false
+}
+```
+
+### Response Body (Success):
+```json
+{
+  "message": "Post availability updated successfully"
+}
+```
+
+### Response Body (Failed):
+```json
+{
+  "message": "Failed to update post availability"
+}
+```
+
+
 
 
 

@@ -3,6 +3,7 @@ package com.adopet.adopet_rest_api.controller;
 import com.adopet.adopet_rest_api.entity.Post;
 import com.adopet.adopet_rest_api.entity.User;
 import com.adopet.adopet_rest_api.model.DetailPostResponse;
+import com.adopet.adopet_rest_api.model.PostBreedResponse;
 import com.adopet.adopet_rest_api.model.UploadPostRequest;
 import com.adopet.adopet_rest_api.model.UploadPostResponse;
 import com.adopet.adopet_rest_api.repository.PostRepository;
@@ -10,6 +11,7 @@ import com.adopet.adopet_rest_api.repository.UserRepository;
 import com.adopet.adopet_rest_api.security.JwtUtil;
 import com.adopet.adopet_rest_api.service.PostService;
 import com.adopet.adopet_rest_api.service.ValidationService;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,7 +21,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.multipart.MultipartFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
+import java.util.List;
+
+@Slf4j
 @RestController
 public class PostController {
 
@@ -37,6 +45,8 @@ public class PostController {
 
     @Autowired
     private PostService postService;
+
+    private static final Logger logger = LoggerFactory.getLogger(PostController.class);
 
     @PostMapping(
             path = "/api/posts"
@@ -83,8 +93,7 @@ public class PostController {
     }
 
     @GetMapping(
-            path = "/api/posts/{postId}",
-            produces = MediaType.APPLICATION_JSON_VALUE
+            path = "/api/posts/{postId}"
     )
     public ResponseEntity<?> getPostDetail(
             @RequestHeader("Authorization") String authHeader,
@@ -106,4 +115,34 @@ public class PostController {
         DetailPostResponse response =  postService.getPostDetail(user, postId);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping(
+            path = "/api/posts/breed/{petBreed}"
+    )
+    public ResponseEntity<?> getPostByBreed(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable("petBreed") String breed
+    ) {
+        logger.info("Received request to fetch posts by breed: {}", breed);
+
+        if(authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("JWT Token is missing");
+        }
+
+        String token = authHeader.substring(7);
+
+        logger.info("Extracted Token: {}", token);
+
+        if(!jwtUtil.validateJwtToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid JWT token");
+        }
+
+        List<PostBreedResponse> postsList = postService.getByBreed(breed);
+
+        if(postsList.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.EMPTY_LIST);
+        }
+        return ResponseEntity.ok(postsList);
+    }
+
 }
