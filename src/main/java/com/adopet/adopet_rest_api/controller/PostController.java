@@ -1,6 +1,8 @@
 package com.adopet.adopet_rest_api.controller;
 
+import com.adopet.adopet_rest_api.entity.Post;
 import com.adopet.adopet_rest_api.entity.User;
+import com.adopet.adopet_rest_api.model.DetailPostResponse;
 import com.adopet.adopet_rest_api.model.UploadPostRequest;
 import com.adopet.adopet_rest_api.model.UploadPostResponse;
 import com.adopet.adopet_rest_api.repository.PostRepository;
@@ -11,10 +13,12 @@ import com.adopet.adopet_rest_api.service.ValidationService;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 public class PostController {
@@ -45,7 +49,7 @@ public class PostController {
             @RequestParam("petAge") int petAge,
             @RequestParam("description") String description,
             @RequestParam("confidenceScore") double confidenceScore,
-            @RequestPart("image")MultipartFile imageFile)
+            @RequestPart("image") MultipartFile imageFile)
     {
         if(authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("JWT Token is missing");
@@ -59,7 +63,6 @@ public class PostController {
         String username = jwtUtil.getUsernameFromToken(token);
         User user = userRepository.findByUsername(username).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-
         UploadPostRequest request = UploadPostRequest.builder()
                 .petName(petName)
                 .petBreed(petBreed)
@@ -77,5 +80,30 @@ public class PostController {
                 .postId(postId)
                 .build();
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping(
+            path = "/api/posts/{postId}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<?> getPostDetail(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable("postId") Long postId
+    ) {
+        if(authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("JWT Token is missing");
+        }
+
+        String token = authHeader.substring(7);
+        if(!jwtUtil.validateJwtToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid JWT token");
+        }
+
+        String username = jwtUtil.getUsernameFromToken(token);
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        DetailPostResponse response =  postService.getPostDetail(user, postId);
+        return ResponseEntity.ok(response);
     }
 }
