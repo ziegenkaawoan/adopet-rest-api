@@ -1,9 +1,8 @@
 package com.adopet.adopet_rest_api.controller;
 
-import com.adopet.adopet_rest_api.entity.Post;
 import com.adopet.adopet_rest_api.entity.User;
 import com.adopet.adopet_rest_api.model.DetailPostResponse;
-import com.adopet.adopet_rest_api.model.PostBreedResponse;
+import com.adopet.adopet_rest_api.model.FilteredPostResponse;
 import com.adopet.adopet_rest_api.model.UploadPostRequest;
 import com.adopet.adopet_rest_api.model.UploadPostResponse;
 import com.adopet.adopet_rest_api.repository.PostRepository;
@@ -12,15 +11,12 @@ import com.adopet.adopet_rest_api.security.JwtUtil;
 import com.adopet.adopet_rest_api.service.PostService;
 import com.adopet.adopet_rest_api.service.ValidationService;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.multipart.MultipartFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,7 +119,6 @@ public class PostController {
             @RequestHeader("Authorization") String authHeader,
             @PathVariable("petBreed") String breed
     ) {
-        logger.info("Received request to fetch posts by breed: {}", breed);
 
         if(authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("JWT Token is missing");
@@ -131,13 +126,37 @@ public class PostController {
 
         String token = authHeader.substring(7);
 
-        logger.info("Extracted Token: {}", token);
+        if(!jwtUtil.validateJwtToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid JWT token");
+        }
+
+        List<FilteredPostResponse> postsList = postService.getByBreed(breed);
+
+        if(postsList.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.EMPTY_LIST);
+        }
+        return ResponseEntity.ok(postsList);
+    }
+
+    @GetMapping(
+            path = "/api/posts/type/{petType}"
+    )
+    public ResponseEntity<?> getPostByType(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable("petType") String petType
+    ) {
+
+        if(authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("JWT Token is missing");
+        }
+
+        String token = authHeader.substring(7);
 
         if(!jwtUtil.validateJwtToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid JWT token");
         }
 
-        List<PostBreedResponse> postsList = postService.getByBreed(breed);
+        List<FilteredPostResponse> postsList = postService.getByType(petType);
 
         if(postsList.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.EMPTY_LIST);

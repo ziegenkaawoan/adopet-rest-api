@@ -1,9 +1,5 @@
 package com.adopet.adopet_rest_api.model;
 
-import com.adopet.adopet_rest_api.entity.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PostBreedResponse {
+public class FilteredPostResponse {
 
     private Long postId;
 
