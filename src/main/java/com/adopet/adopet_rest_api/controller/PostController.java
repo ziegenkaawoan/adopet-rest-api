@@ -1,10 +1,7 @@
 package com.adopet.adopet_rest_api.controller;
 
 import com.adopet.adopet_rest_api.entity.User;
-import com.adopet.adopet_rest_api.model.DetailPostResponse;
-import com.adopet.adopet_rest_api.model.FilteredPostResponse;
-import com.adopet.adopet_rest_api.model.UploadPostRequest;
-import com.adopet.adopet_rest_api.model.UploadPostResponse;
+import com.adopet.adopet_rest_api.model.*;
 import com.adopet.adopet_rest_api.repository.PostRepository;
 import com.adopet.adopet_rest_api.repository.UserRepository;
 import com.adopet.adopet_rest_api.security.JwtUtil;
@@ -162,6 +159,33 @@ public class PostController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.EMPTY_LIST);
         }
         return ResponseEntity.ok(postsList);
+    }
+
+    @PatchMapping(
+            path = "api/posts/{postId}/availability"
+    )
+    public ResponseEntity<?> updateAvailability(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable("postId") Long postId,
+            @RequestBody ChangeAvailabilityRequest request
+    ) {
+
+        validationService.validate(request);
+
+        if(authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("JWT Token is missing");
+        }
+
+        String token = authHeader.substring(7);
+
+        if(!jwtUtil.validateJwtToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid JWT token");
+        }
+
+        var availability = request.getIsAvailable();
+
+        postService.changeAvailability(postId, availability);
+        return ResponseEntity.ok("Success to update post availability");
     }
 
 }

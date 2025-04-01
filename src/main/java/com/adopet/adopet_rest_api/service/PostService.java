@@ -58,7 +58,7 @@ public class PostService {
                 .petBreed(request.getPetBreed())
                 .petOwner(user)
                 .postDate(LocalDateTime.now())
-                .isAvailable(request.getIsAvailable())
+                .available(request.getIsAvailable())
                 .confidenceScore(request.getConfidenceScore())
                 .description(request.getDescription())
                 .build();
@@ -166,8 +166,15 @@ public class PostService {
         return newList;
     }
 
-
     // Change Status
+    @Transactional
+    public void changeAvailability(Long postId, boolean isAvailable) {
+        Post post = postRepository.findById(postId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Failed to update post availability"));
+
+        post.setAvailable(isAvailable);
+        postRepository.save(post);
+    }
 
     // Get Upload History
 

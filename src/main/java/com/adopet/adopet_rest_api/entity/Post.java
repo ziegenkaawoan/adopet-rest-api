@@ -46,8 +46,8 @@ public class Post {
     @Column(name = "confidence_score")
     private Double confidenceScore;
 
-    @Column(name = "is_available")
-    private boolean isAvailable;
+    @Column(name = "is_available", columnDefinition = "BIT(1)")
+    private boolean available;
 
     @Column(name = "pet_age")
     private int petAge;
