@@ -2,10 +2,7 @@ package com.adopet.adopet_rest_api.service;
 
 import com.adopet.adopet_rest_api.entity.Post;
 import com.adopet.adopet_rest_api.entity.User;
-import com.adopet.adopet_rest_api.model.DetailPostResponse;
-import com.adopet.adopet_rest_api.model.PetOwnerModel;
-import com.adopet.adopet_rest_api.model.FilteredPostResponse;
-import com.adopet.adopet_rest_api.model.UploadPostRequest;
+import com.adopet.adopet_rest_api.model.*;
 import com.adopet.adopet_rest_api.repository.PostRepository;
 import com.adopet.adopet_rest_api.repository.UserRepository;
 import com.adopet.adopet_rest_api.security.JwtUtil;
@@ -13,6 +10,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,8 +28,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -58,7 +60,7 @@ public class PostService {
                 .petBreed(request.getPetBreed())
                 .petOwner(user)
                 .postDate(LocalDateTime.now())
-                .available(request.getIsAvailable())
+                .isAvailable(request.getIsAvailable())
                 .confidenceScore(request.getConfidenceScore())
                 .description(request.getDescription())
                 .build();
@@ -75,7 +77,58 @@ public class PostService {
 
 
     // Get All Post
+    public PostListResponse getPosts(
+            String petType,
+            String petBreed,
+            Boolean isAvailable,
+            int page,
+            int size
+    ) {
 
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        Page<Post> pagination = postRepository.findByPetTypeAndPetBreedAndIsAvailable(petType, petBreed, isAvailable, pageable);
+        PostListResponse postListResponse;
+        if (!pagination.isEmpty()) {
+            List<DetailPostResponse> listPost = pagination.getContent().stream().map(post ->
+                    DetailPostResponse.builder().postId(post.getPostId())
+                            .petName(post.getPetName())
+                            .petBreed(post.getPetBreed())
+                            .petType(post.getPetType())
+                            .imageUrl(post.getImageUrl())
+                            .description(post.getDescription())
+                            .postDate(post.getPostDate())
+                            .confidenceScore(post.getConfidenceScore())
+                            .isAvailable(post.getIsAvailable())
+                            .petAge(post.getPetAge())
+                            .petOwner(new PetOwnerModel(post.getPetOwner().getId(),
+                                    post.getPetOwner().getUsername(),
+                                    post.getPetOwner().getEmail(),
+                                    post.getPetOwner().getPhoneNumber())
+                            )
+                            .build()
+            ).toList();
+            postListResponse = PostListResponse.builder()
+                    .data(listPost)
+                    .page(PageDataModel.builder()
+                            .totalPosts(pagination.getTotalElements())
+                            .totalPages(pagination.getTotalPages())
+                            .currentPage(pagination.getNumber())
+                            .build())
+                    .build();
+        } else {
+            postListResponse = PostListResponse.builder()
+                    .data(Collections.emptyList())
+                    .page(PageDataModel.builder()
+                            .totalPosts(0L)
+                            .totalPages(0)
+                            .currentPage(0)
+                            .build())
+                    .build();
+        }
+
+        return postListResponse;
+    }
 
     // Get Detail
     public DetailPostResponse getPostDetail(User user, Long postId) {
@@ -93,7 +146,7 @@ public class PostService {
                 .petOwner(petOwner)
                 .postDate(post.getPostDate())
                 .imageUrl(post.getImageUrl())
-                .isAvailable(post.isAvailable())
+                .isAvailable(post.getIsAvailable())
                 .description(post.getDescription())
                 .petName(post.getPetName())
                 .petBreed(post.getPetBreed())
@@ -117,7 +170,7 @@ public class PostService {
                         .petAge(post.getPetAge())
                         .petType(post.getPetType())
                         .confidenceScore(post.getConfidenceScore())
-                        .isAvailable(post.isAvailable())
+                        .isAvailable(post.getIsAvailable())
                         .description(post.getDescription())
                         .build();
 
@@ -149,7 +202,7 @@ public class PostService {
                         .petAge(post.getPetAge())
                         .petType(post.getPetType())
                         .confidenceScore(post.getConfidenceScore())
-                        .isAvailable(post.isAvailable())
+                        .isAvailable(post.getIsAvailable())
                         .description(post.getDescription())
                         .build();
 
@@ -172,7 +225,7 @@ public class PostService {
         Post post = postRepository.findById(postId).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Failed to update post availability"));
 
-        post.setAvailable(isAvailable);
+        post.setIsAvailable(isAvailable);
         postRepository.save(post);
     }
 

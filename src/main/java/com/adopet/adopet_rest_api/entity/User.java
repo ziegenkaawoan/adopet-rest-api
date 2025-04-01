@@ -1,5 +1,6 @@
 package com.adopet.adopet_rest_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,6 +30,7 @@ public class User {
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "petOwner")
     private List<Post> posts;
 }

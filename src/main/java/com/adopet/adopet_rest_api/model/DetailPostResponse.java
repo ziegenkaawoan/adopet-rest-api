@@ -25,9 +25,13 @@ public class DetailPostResponse {
 
     private String imageUrl;
 
+    private double confidenceScore;
+
     private String description;
 
     private boolean isAvailable;
+
+    private int petAge;
 
     private LocalDateTime postDate;
 

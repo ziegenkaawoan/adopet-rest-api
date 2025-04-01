@@ -1,5 +1,6 @@
 package com.adopet.adopet_rest_api.controller;
 
+import com.adopet.adopet_rest_api.entity.Post;
 import com.adopet.adopet_rest_api.entity.User;
 import com.adopet.adopet_rest_api.model.*;
 import com.adopet.adopet_rest_api.repository.PostRepository;
@@ -9,6 +10,7 @@ import com.adopet.adopet_rest_api.service.PostService;
 import com.adopet.adopet_rest_api.service.ValidationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -187,5 +191,22 @@ public class PostController {
         postService.changeAvailability(postId, availability);
         return ResponseEntity.ok("Success to update post availability");
     }
+
+    @GetMapping(
+            path = "api/posts"
+    )
+    public ResponseEntity<?> getPosts(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "petType", required = false) String petType,
+            @RequestParam(value = "petBreed", required = false) String petBreed,
+            @RequestParam(value = "isAvailable", defaultValue = "true") boolean isAvailable
+    ) {
+        PostListResponse postListResponse = postService.getPosts(petType, petBreed,isAvailable, page, size);
+
+        return ResponseEntity.ok().body(postListResponse);
+    }
+
+
 
 }

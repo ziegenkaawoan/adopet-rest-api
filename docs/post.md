@@ -62,7 +62,12 @@
       "petName": "Buddy",
       "petBreed": "Golden Retriever",
       "petType": "Dog",
-      "petOwnerId": 1,
+      "petOwner": {
+        "id": 4,
+        "username": "vallerie",
+        "email": "vallerie@gmail.com",
+        "phoneNumber": "0852418146363"
+      },
       "imageUrl": "https://example.com/image.jpg",
       "description": "Friendly and energetic dog looking for a home.",
       "confidenceScore": 90,
@@ -74,7 +79,12 @@
       "petName": "Milo",
       "petBreed": "Persian",
       "petType": "Cat",
-      "petOwnerId": 2,
+      "petOwner": {
+        "id": 4,
+        "username": "vallerie",
+        "email": "vallerie@gmail.com",
+        "phoneNumber": "0852418146363"
+      },
       "imageUrl": "https://example.com/image2.jpg",
       "description": "Cute Persian cat available for adoption.",
       "confidenceScore": 85,
@@ -123,6 +133,7 @@
     "email": "john@example.com",
     "phoneNumber": "1234567890"
   },
+  "confidenceScore": 90,
   "imageUrl": "https://example.com/image.jpg",
   "description": "Friendly and playful dog looking for a home.",
   "isAvailable": true,
@@ -217,6 +228,7 @@
     "imageUrl": "https://example.com/image.jpg",
     "description": "Friendly and playful dog looking for a home."
   },
+  "confidenceScore": 80,
   "uploadDate": "2025-03-30T10:00:00Z",
   "status": "Success"
 }

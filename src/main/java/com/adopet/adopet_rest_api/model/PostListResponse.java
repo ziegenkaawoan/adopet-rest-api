@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GetPostResponse {
-    List<Post> data;
+public class PostListResponse {
+    List<DetailPostResponse> data;
     PageDataModel page;
 }
