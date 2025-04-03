@@ -17,8 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -31,12 +29,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 
 @Service
 public class PostService {
-
 
     @Autowired
     private PostRepository postRepository;
@@ -230,6 +226,44 @@ public class PostService {
     }
 
     // Get Upload History
+    public HistoryListResponse getUploadHistory(User user, Boolean isAvailable, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        Page<Post> pagination = postRepository.findByPetOwnerIdAndIsAvailable(user.getId(), isAvailable, pageable);
+        HistoryListResponse historyListResponse;
+
+        if(!pagination.isEmpty()) {
+            List<HistoryPost> listHistoryPost = pagination.getContent().stream().map(post ->
+                    HistoryPost.builder()
+                            .postId(post.getPostId())
+                            .description(post.getDescription())
+                            .petType(post.getPetType())
+                            .confidenceScore(post.getConfidenceScore())
+                            .imageUrl(post.getImageUrl())
+                            .isAvailable(post.getIsAvailable())
+                            .build()
+                    ).toList();
+            historyListResponse = HistoryListResponse.builder()
+                    .posts(listHistoryPost)
+                    .page(PageDataModel.builder()
+                            .totalPosts(pagination.getTotalElements())
+                            .totalPages(pagination.getTotalPages())
+                            .currentPage(pagination.getNumber())
+                            .build())
+                    .build();
+        } else {
+            historyListResponse = HistoryListResponse.builder()
+                    .page(PageDataModel.builder()
+                            .totalPosts(0L)
+                            .totalPages(0)
+                            .currentPage(0)
+                            .build())
+                    .posts(Collections.emptyList())
+                    .build();
+        }
+        return historyListResponse;
+
+    }
 
     // Get History Detail
 

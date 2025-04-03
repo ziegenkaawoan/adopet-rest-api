@@ -73,7 +73,7 @@ public class AuthController {
         }
 
         if (!encoder.matches(request.getPassword(), user.getPassword())) {
-            logger.error("Password tidak cocok!");
+            logger.error("Password is not matching!");
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid password");
         }
         Authentication authentication = authenticationManager.authenticate(

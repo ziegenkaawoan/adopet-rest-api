@@ -196,17 +196,54 @@ public class PostController {
             path = "api/posts"
     )
     public ResponseEntity<?> getPosts(
+            @RequestHeader("Authorization") String authHeader,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
-            @RequestParam(value = "petType", required = false) String petType,
+            @RequestParam(value = "petType", required = false, defaultValue = "Cat") String petType,
             @RequestParam(value = "petBreed", required = false) String petBreed,
             @RequestParam(value = "isAvailable", defaultValue = "true") boolean isAvailable
     ) {
+
+        if(authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("JWT Token is missing");
+        }
+
+        String token = authHeader.substring(7);
+
+        if(!jwtUtil.validateJwtToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid JWT token");
+        }
+
         PostListResponse postListResponse = postService.getPosts(petType, petBreed,isAvailable, page, size);
 
         return ResponseEntity.ok().body(postListResponse);
     }
 
+    @GetMapping(
+            path = "api/posts/history"
+    )
+    public ResponseEntity<?> getUploadHistory(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "isAvailable", defaultValue = "false") Boolean isAvailable
+    ) {
 
+        if(authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid JWT Token");
+        }
 
+        String token = authHeader.substring(7);
+
+        if(!jwtUtil.validateJwtToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid JWT Token");
+        }
+
+        String username = jwtUtil.getUsernameFromToken(token);
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        HistoryListResponse historyListResponse =  postService.getUploadHistory(user, isAvailable, page, size);
+        return ResponseEntity.ok(historyListResponse);
+    }
 }

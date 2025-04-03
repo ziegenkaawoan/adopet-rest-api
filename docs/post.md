@@ -201,14 +201,14 @@
 ## Get Upload History Detail
 
 - **Description:** Retrieve the details of a specific upload history entry by its ID.
-- **Endpoint:** `GET /api/history/{historyId}`
+- **Endpoint:** `GET /api/history/{postId}`
 - **Authorization:** Required (Bearer Token)
 
 ### Request Parameters
 
-| Parameter   | Type   | Required | Description                          |
-|------------|--------|----------|--------------------------------------|
-| `historyId` | `long` | Yes      | The ID of the history entry to fetch |
+| Parameter | Type   | Required | Description                          |
+|-----------|--------|----------|--------------------------------------|
+| `postId`  | `long` | Yes      | The ID of the history entry to fetch |
 
 ### Response Body (Success)
 
