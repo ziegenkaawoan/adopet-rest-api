@@ -7,6 +7,7 @@ import com.adopet.adopet_rest_api.repository.PostRepository;
 import com.adopet.adopet_rest_api.repository.UserRepository;
 import com.adopet.adopet_rest_api.security.JwtUtil;
 import jakarta.transaction.Transactional;
+import org.apache.tomcat.util.http.parser.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -264,8 +265,6 @@ public class PostService {
         return historyListResponse;
 
     }
-
-    // Get History Detail
 
 
     private String saveUploadFile(MultipartFile file) {
