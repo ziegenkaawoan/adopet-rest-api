@@ -204,8 +204,9 @@ public class PostController {
             @RequestParam(value = "isAvailable", defaultValue = "true", required = false) boolean isAvailable
     ) {
 
-        if(authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("JWT Token is missing");
+        System.out.println("Token = " + authHeader);
+        if(authHeader == null || !authHeader.startsWith("Bearer")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("tidak diawali dengan bearer");
         }
 
         String token = authHeader.substring(7);

@@ -17,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -278,13 +280,14 @@ public class PostService {
     }
 
     private PostListResponse convertToDetailListResponse(Page<Post> pagination) {
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString() + "/images/";
         PostListResponse postListResponse;
         List<DetailPostResponse> listPost = pagination.getContent().stream().map(post ->
                 DetailPostResponse.builder().postId(post.getPostId())
                         .petName(post.getPetName())
                         .petBreed(post.getPetBreed())
                         .petType(post.getPetType())
-                        .imageUrl(post.getImageUrl())
+                        .imageUrl(baseUrl + post.getImageUrl())
                         .description(post.getDescription())
                         .postDate(post.getPostDate())
                         .confidenceScore(post.getConfidenceScore())
