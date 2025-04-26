@@ -1,6 +1,5 @@
 package com.adopet.adopet_rest_api.controller;
 
-import com.adopet.adopet_rest_api.entity.Post;
 import com.adopet.adopet_rest_api.entity.User;
 import com.adopet.adopet_rest_api.model.*;
 import com.adopet.adopet_rest_api.repository.PostRepository;
@@ -9,20 +8,19 @@ import com.adopet.adopet_rest_api.security.JwtUtil;
 import com.adopet.adopet_rest_api.service.PostService;
 import com.adopet.adopet_rest_api.service.ValidationService;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -246,5 +244,47 @@ public class PostController {
 
         HistoryListResponse historyListResponse =  postService.getUploadHistory(user, isAvailable, page, size);
         return ResponseEntity.ok(historyListResponse);
+    }
+
+    @GetMapping(
+            path = "api/posts/history/{postId}"
+    )
+    public ResponseEntity<?> getHistoryDetail(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable("postId") Long postId
+    ) {
+        if(authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid JWT Token");
+        }
+
+        String token = authHeader.substring(7);
+
+        if(!jwtUtil.validateJwtToken(token)) {
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Invalid JWT token");
+        }
+
+        String username = jwtUtil.getUsernameFromToken(token);
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+
+        DetailPostResponse detailPostResponse = postService.getPostDetail(user, postId);
+        return ResponseEntity.ok(detailPostResponse);
+    }
+
+    @GetMapping(
+            path = "/api/posts/{filename:..+"
+    )
+    public ResponseEntity<Resource> getFile(@PathVariable String fileName) {
+        try {
+            Resource resource = postService.loadFile(fileName);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"")
+                    .body(resource);
+        } catch(ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode())
+                    .body(null);
+        }
     }
 }

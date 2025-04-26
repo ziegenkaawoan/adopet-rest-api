@@ -214,20 +214,18 @@
 
 ```json
 {
-  "historyId": 123,
-  "user": {
-    "id": 10,
-    "username": "john_doe",
-    "email": "john@example.com"
-  },
-  "post": {
-    "postId": 101,
-    "petName": "Buddy",
-    "petBreed": "Golden Retriever",
-    "petType": "Dog",
-    "imageUrl": "https://example.com/image.jpg",
-    "description": "Friendly and playful dog looking for a home."
-  },
+  "postId": 101,
+  "petOwner" : {
+    "ownerId": 1,
+    "username": "Jonathan",
+    "email": "jkamagi41@gmail.com",
+    "phoneNumber": "0852131231"
+  }, 
+  "petName": "Buddy",
+  "petBreed": "Golden Retriever",
+  "petType": "Dog",
+  "imageUrl": "https://example.com/image.jpg",
+  "description": "Friendly and playful dog looking for a home.",
   "confidenceScore": 80,
   "uploadDate": "2025-03-30T10:00:00Z",
   "status": "Success"
@@ -319,7 +317,7 @@
 }
 ```
 
----
+--- 
 
 ## Change Post Availability
 - **Description:** Update the availability status of a pet adoption post.
