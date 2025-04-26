@@ -199,9 +199,9 @@ public class PostController {
             @RequestHeader("Authorization") String authHeader,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
-            @RequestParam(value = "petType", required = false, defaultValue = "Cat") String petType,
+            @RequestParam(value = "petType", required = false) String petType,
             @RequestParam(value = "petBreed", required = false) String petBreed,
-            @RequestParam(value = "isAvailable", defaultValue = "true") boolean isAvailable
+            @RequestParam(value = "isAvailable", defaultValue = "true", required = false) boolean isAvailable
     ) {
 
         if(authHeader == null || !authHeader.startsWith("Bearer ")) {

@@ -80,40 +80,17 @@ public class PostService {
             int page,
             int size
     ) {
-
         Pageable pageable = PageRequest.of(page - 1, size);
-
-        Page<Post> pagination = postRepository.findByPetTypeAndPetBreedAndIsAvailable(petType, petBreed, isAvailable, pageable);
-        PostListResponse postListResponse;
-        if (!pagination.isEmpty()) {
-            List<DetailPostResponse> listPost = pagination.getContent().stream().map(post ->
-                    DetailPostResponse.builder().postId(post.getPostId())
-                            .petName(post.getPetName())
-                            .petBreed(post.getPetBreed())
-                            .petType(post.getPetType())
-                            .imageUrl(post.getImageUrl())
-                            .description(post.getDescription())
-                            .postDate(post.getPostDate())
-                            .confidenceScore(post.getConfidenceScore())
-                            .isAvailable(post.getIsAvailable())
-                            .petAge(post.getPetAge())
-                            .petOwner(new PetOwnerModel(post.getPetOwner().getId(),
-                                    post.getPetOwner().getUsername(),
-                                    post.getPetOwner().getEmail(),
-                                    post.getPetOwner().getPhoneNumber())
-                            )
-                            .build()
-            ).toList();
-            postListResponse = PostListResponse.builder()
-                    .data(listPost)
-                    .page(PageDataModel.builder()
-                            .totalPosts(pagination.getTotalElements())
-                            .totalPages(pagination.getTotalPages())
-                            .currentPage(pagination.getNumber())
-                            .build())
-                    .build();
+        Page<Post> pagination;
+        if(petType == null || petBreed == null) {
+            pagination = postRepository.findAll(pageable);
         } else {
-            postListResponse = PostListResponse.builder()
+            pagination = postRepository.findByPetTypeAndPetBreedAndIsAvailable(petType, petBreed, isAvailable, pageable);
+        }
+        if(!pagination.isEmpty()) {
+           return convertToDetailListResponse(pagination);
+        } else {
+            return PostListResponse.builder()
                     .data(Collections.emptyList())
                     .page(PageDataModel.builder()
                             .totalPosts(0L)
@@ -122,8 +99,6 @@ public class PostService {
                             .build())
                     .build();
         }
-
-        return postListResponse;
     }
 
     // Get Detail
@@ -300,5 +275,36 @@ public class PostService {
         } catch (MalformedURLException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not read file: " + filename, e);
         }
+    }
+
+    private PostListResponse convertToDetailListResponse(Page<Post> pagination) {
+        PostListResponse postListResponse;
+        List<DetailPostResponse> listPost = pagination.getContent().stream().map(post ->
+                DetailPostResponse.builder().postId(post.getPostId())
+                        .petName(post.getPetName())
+                        .petBreed(post.getPetBreed())
+                        .petType(post.getPetType())
+                        .imageUrl(post.getImageUrl())
+                        .description(post.getDescription())
+                        .postDate(post.getPostDate())
+                        .confidenceScore(post.getConfidenceScore())
+                        .isAvailable(post.getIsAvailable())
+                        .petAge(post.getPetAge())
+                        .petOwner(new PetOwnerModel(post.getPetOwner().getId(),
+                                post.getPetOwner().getUsername(),
+                                post.getPetOwner().getEmail(),
+                                post.getPetOwner().getPhoneNumber())
+                        )
+                        .build()
+        ).toList();
+        postListResponse = PostListResponse.builder()
+                .data(listPost)
+                .page(PageDataModel.builder()
+                        .totalPosts(pagination.getTotalElements())
+                        .totalPages(pagination.getTotalPages())
+                        .currentPage(pagination.getNumber())
+                        .build())
+                .build();
+        return postListResponse;
     }
 }
