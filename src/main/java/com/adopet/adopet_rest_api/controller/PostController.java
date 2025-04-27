@@ -202,7 +202,6 @@ public class PostController {
             @RequestParam(value = "isAvailable", defaultValue = "true", required = false) boolean isAvailable
     ) {
 
-        System.out.println("Token = " + authHeader);
         if(authHeader == null || !authHeader.startsWith("Bearer")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("tidak diawali dengan bearer");
         }
@@ -273,18 +272,29 @@ public class PostController {
     }
 
     @GetMapping(
-            path = "/api/posts/{filename:..+"
+            path = "/images/{filename:.+}"
     )
-    public ResponseEntity<Resource> getFile(@PathVariable String fileName) {
+    public ResponseEntity<Resource> getFile(@PathVariable String filename) {
         try {
-            Resource resource = postService.loadFile(fileName);
+            Resource resource = postService.loadFile(filename);
+
+            String contentType = "application/octet-stream";
+            if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
+                contentType = MediaType.IMAGE_JPEG_VALUE;
+            } else if (filename.endsWith(".png")) {
+                contentType = MediaType.IMAGE_PNG_VALUE;
+            } else if (filename.endsWith(".webp")) {
+                contentType = "image/webp";
+            }
+
             return ResponseEntity.ok()
-                    .contentType(MediaType.IMAGE_JPEG)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"")
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
                     .body(resource);
-        } catch(ResponseStatusException e) {
+        } catch (ResponseStatusException e) {
             return ResponseEntity.status(e.getStatusCode())
                     .body(null);
         }
     }
+
 }

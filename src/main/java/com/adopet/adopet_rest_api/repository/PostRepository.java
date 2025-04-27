@@ -17,7 +17,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> searchByPetBreed(@Param("petBreed") String petBreed);
 
     @Query("SELECT p FROM Post p WHERE LOWER(p.petType) = LOWER(:petType)")
-    List<Post> searchByPetType(@Param("petType") String petType);
+    Page<Post> searchByPetType(@Param("petType") String petType);
 
     Page<Post> findByPetTypeAndPetBreedAndIsAvailable(
             String petType,
