@@ -88,7 +88,7 @@ public class PostService {
         if(petType == null || petBreed == null) {
             pagination = postRepository.findAll(pageable);
         } else if(petType.equals("Cat") || petType.equals("Dog")) {
-            pagination = postRepository.searchByPetType(petType);
+            pagination = postRepository.searchByPetType(petType, pageable);
         }
         else {
             pagination = postRepository.findByPetTypeAndPetBreedAndIsAvailable(petType, petBreed, isAvailable, pageable);
@@ -163,39 +163,6 @@ public class PostService {
         }
         return newList;
     }
-
-    // Get by Type
-    public List<FilteredPostResponse> getByType(String type) {
-
-        List<Post> postsList = postRepository.searchByPetType(type);
-        List<FilteredPostResponse> newList = new ArrayList<>();
-
-        if(!postsList.isEmpty()) {
-            for(Post post : postsList) {
-                FilteredPostResponse postBreed = FilteredPostResponse.builder()
-                        .postId(post.getPostId())
-                        .postDate(post.getPostDate())
-                        .imageUrl(post.getImageUrl())
-                        .petAge(post.getPetAge())
-                        .petType(post.getPetType())
-                        .confidenceScore(post.getConfidenceScore())
-                        .isAvailable(post.getIsAvailable())
-                        .description(post.getDescription())
-                        .build();
-
-                PetOwnerModel petOwner = PetOwnerModel.builder()
-                        .id(post.getPetOwner().getId())
-                        .phoneNumber(post.getPetOwner().getPhoneNumber())
-                        .email(post.getPetOwner().getEmail())
-                        .build();
-
-                postBreed.setPetOwner(petOwner);
-                newList.add(postBreed);
-            }
-        }
-        return newList;
-    }
-
 
     // Change Status
     @Transactional

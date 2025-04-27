@@ -110,7 +110,7 @@ public class PostController {
         DetailPostResponse response =  postService.getPostDetail(user, postId);
         return ResponseEntity.ok(response);
     }
-
+d
     @GetMapping(
             path = "/api/posts/breed/{petBreed}"
     )
@@ -130,32 +130,6 @@ public class PostController {
         }
 
         List<FilteredPostResponse> postsList = postService.getByBreed(breed);
-
-        if(postsList.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.EMPTY_LIST);
-        }
-        return ResponseEntity.ok(postsList);
-    }
-
-    @GetMapping(
-            path = "/api/posts/type/{petType}"
-    )
-    public ResponseEntity<?> getPostByType(
-            @RequestHeader("Authorization") String authHeader,
-            @PathVariable("petType") String petType
-    ) {
-
-        if(authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("JWT Token is missing");
-        }
-
-        String token = authHeader.substring(7);
-
-        if(!jwtUtil.validateJwtToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid JWT token");
-        }
-
-        List<FilteredPostResponse> postsList = postService.getByType(petType);
 
         if(postsList.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.EMPTY_LIST);
